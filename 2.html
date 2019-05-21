@@ -1,7 +1,15 @@
 <html>
   
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<style>
+  /* No margins: */
+  html, body {
+    width:  100%;
+    height: 100%;
+    margin: 0;
+  }
+</style>
 </head>
 
 <body>
@@ -10,6 +18,7 @@
     
 <script>
 
+// Gets relative position of a mouse |event| within |canvas|.
 function canvasMousePosition(canvas, event) {
   var rect = canvas.getBoundingClientRect();
   return {
@@ -18,12 +27,13 @@ function canvasMousePosition(canvas, event) {
   };
 }
 
+// Set up full page canvas.
 canvas = document.getElementById("canvas");
 canvas.width = document.body.clientWidth;
 canvas.height = document.body.clientHeight;
-
 context = canvas.getContext("2d");
 
+// Draws part of an arc on click.
 canvas.addEventListener("click", function (event) {
   var p = canvasMousePosition(canvas, event);
   context.beginPath();

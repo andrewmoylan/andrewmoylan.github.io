@@ -1,0 +1,96 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <style>
+      /* No margins: */
+      html, body {
+        width:  100%;
+        height: 100%;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas" width="100" height="100"></canvas>
+    <script>
+
+// Gets relative position of a mouse |event| within |canvas|.
+function canvasMousePosition(canvas, event) {
+  var rect = canvas.getBoundingClientRect();
+  return {
+    x: (event.clientX - rect.left) / (rect.right - rect.left) * canvas.width,
+    y: (event.clientY - rect.top) / (rect.bottom - rect.top) * canvas.height
+  };
+}
+
+var arcs = []
+
+// Set up full page canvas.
+canvas = document.getElementById("canvas");
+canvas.width = document.body.clientWidth;
+canvas.height = document.body.clientHeight;
+context = canvas.getContext("2d");
+
+// Add an arc on mouse click.
+canvas.addEventListener("click", function (event) {
+  var p = canvasMousePosition(canvas, event);
+  arcs.push({
+    x: p.x,
+    y: p.y,
+    radius: canvas.width / 20,
+    angleStart: 2 * Math.PI * Math.random(),
+    angleSize: 2 * Math.PI * Math.random()
+  });
+})
+
+function drawArc(arc) {
+  context.arc(
+      arc.x, arc.y, arc.radius, arc.angleStart, arc.angleStart + arc.angleSize);
+}
+
+function draw() {
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Draw all arcs, without lifting pen off the page.
+  context.beginPath();
+  arcs.forEach(drawArc);
+  // Draw the first arc again.
+  if (arcs.length > 0) drawArc(arcs[0]);
+  context.stroke();
+}
+
+var angularVelocity = 1;  // rad/sec
+function update() {
+  arcs.forEach(function(arc, index) {
+    this[index].angleStart += angularVelocity * timestep;
+  }, arcs);
+}
+
+var timestepMs = 1000 / 60;
+var timestep = timestepMs / 1000;
+
+var unsimulatedTime = 0;
+var lastUpdateTimestamp = null;
+
+function mainLoop(timestamp) {
+  if (lastUpdateTimestamp) {
+    unsimulatedTime += (timestamp - lastUpdateTimestamp);
+  }
+  lastUpdateTimestamp = timestamp;
+  
+  // Simulate until we are caught up.
+  while (unsimulatedTime > timestepMs) {
+    update();
+    unsimulatedTime -= timestepMs;
+  }
+  
+  draw();
+  
+  requestAnimationFrame(mainLoop);
+}
+
+requestAnimationFrame(mainLoop);
+
+    </script>
+  </body>
+</html>
